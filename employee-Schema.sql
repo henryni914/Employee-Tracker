@@ -40,7 +40,7 @@ values ("Engineer", 80000, 1), ("Manager", 100000, 1), ("Software Developer", 90
 insert into employeeTable (first_name, last_name, role_id)
 values ("Henry", "Ni", 1), ("Kenny", "Lam", 2), ("Amy", "Lin", 3), ("Rebecca", "Cheung", 4), ("Jessica", "Cheung", 4);
 
-select departmentTable.department, departmentTable.id, roleTable.title, roleTable.salary, roleTable.department_id, employeeTable.first_name, employeeTable.last_name, employeeTable.role_id
-from departmentTable
-inner join roleTable on roleTable.department_id = departmentTable.id
-inner join employeeTable on roleTable.id = employeeTable.role_id;
+-- select departmentTable.department, departmentTable.id, roleTable.title, roleTable.salary, roleTable.department_id, employeeTable.first_name, employeeTable.last_name, employeeTable.role_id
+-- from departmentTable
+-- inner join roleTable on roleTable.department_id = departmentTable.id
+-- inner join employeeTable on roleTable.id = employeeTable.role_id;
