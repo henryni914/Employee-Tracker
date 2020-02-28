@@ -251,7 +251,7 @@ function removeEmployee() {
                 }
             ]).then(function (data) {
                 // console.log(data.item.split(" "));
-                var nameSplit = data.item.split(" ");
+                let nameSplit = data.item.split(" ");
                 // console.log(nameSplit);
                 let query = "delete from employeeTable where ? and ?"
                 connection.query(query,
@@ -282,32 +282,83 @@ function updateRole() {
                     let employees = []
                     res.forEach(element => {
                         employees.push(element.first_name + " " + element.last_name)
-
                     })
                     return employees;
                 },
             }).then(function (data) {
-                console.log(data);
-                connection.query("select * from departmentTable", function (err, res) {
-                    if (err) throw err;
-                    console.log(res);
+                console.log(data); // { employee: 'Henry Ni' }
+                connection.query("select * from roleTable", function (err, res) {
                     inquirer.prompt(
                         {
                             type: `list`,
-                            name: `department`,
-                            message: `Select the department the role is in: `,
+                            name: `role`,
+                            message: `Select the new role: `,
                             choices: function () {
-                                let departments = []
+                                let roles = []
                                 res.forEach(element => {
-                                    departments.push(element.department)
-                                })
-                                return departments;
-                            },
-                        })
+                                    roles.push(element.title)
+                                });
+                                return roles;
+                            }
+                        }).then(function (response) {
+                            console.log("Employee: " + data.employee + " New role: " + response.role); //Employee: Kenny Lam New role: Manager
+                            let nameSplit = data.employee.split(" ");
+                            let query = "select id from roleTable where ? = title"; //insert role id into employee table where first = ? and last = ?
+                            connection.query(query,
+                                response.role,
+                                function (err, res) {
+                                    if (err) throw err;
+                                    // console.log(res);
+                                    console.log(res); //[ RowDataPacket { id: 3 } ]
+                                    let query2 = "update employeeTable set ? where ? and ?";
+                                    connection.query(query2,
+                                        [{
+                                            role_id: res[0].id
+                                        },
+                                        {
+                                            first_name: nameSplit[0]
+                                        },
+                                        {
+                                            last_name: nameSplit[1]
+                                        }
+                                        ], function (err, res) {
+                                            if (err) throw err;
+                                            console.log("Role successfully updated!");
+                                        })
+                                });
+                        });
                 });
-            })
-    })
-}
+            });
+    });
+};
+
+
+// [{
+//     first_name: nameSplit[0]
+// },
+// {
+//     last_name: nameSplit[1]
+// }
+// ]
+// { employee: 'Kenny Lam' }
+// connection.query("select * from departmentTable", function (err, res) {
+//     if (err) throw err;
+//     // console.log(res);
+//     inquirer.prompt(
+//         {
+//             type: `list`,
+//             name: `department`,
+//             message: `Select the department the role is in: `,
+//             choices: function () {
+//                 let departments = []
+//                 res.forEach(element => {
+//                     departments.push(element.department)
+//                 })
+//                 return departments;
+//             },
+//         }).then(function (resData) {
+//             console.log(resData); //{ department: 'Sales' }
+
 
 // insert into employeeTable set (sets new employee into table with first and last name)
 // departmentTable.department, departmentTable.id, roleTable.title, roleTable.salary, roleTable.department_id, employeeTable.first_name, employeeTable.last_name, employeeTable.role_id (select all)
