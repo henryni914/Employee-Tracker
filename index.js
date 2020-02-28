@@ -71,7 +71,7 @@ function viewEmployees() {
     connection.query(query, function (err, res) {
         if (err) throw err;
         console.table(res);
-        // runInit();
+        runInit();
     })
 }
 
@@ -96,7 +96,7 @@ function viewRoles() {
 function addEmployees() {
     connection.query("SELECT * FROM roleTable", function (err, results) {
         if (err) throw err;
-        console.log(results);
+        // console.log(results);
         let employeeRoles = [];
         // let employeeDepartments = [];
         results.forEach(element => {
@@ -106,7 +106,7 @@ function addEmployees() {
         //     employeeDepartments.push(element.department_id);
         // })
         employeeRoles.push("New role", "None");
-        console.log(`Roles pulled from query ${employeeRoles}`);
+        // console.log(`Roles pulled from query ${employeeRoles}`);
         inquirer.prompt([{
             name: "firstLast",
             type: "input",
@@ -117,29 +117,29 @@ function addEmployees() {
             type: "list",
             message: "Please choose your employee's role",
             choices: employeeRoles
-        } 
-        // {
-        //     name: "salary",
-        //     type: "input",
-        //     message: "Please enter your employee's salary"
-        // },
+        }
+            // {
+            //     name: "salary",
+            //     type: "input",
+            //     message: "Please enter your employee's salary"
+            // },
             // {
             //     name: "department",
             //     type: "choice",
             //     message: "Please choose your employee's department"
             // }
         ]).then(function (data) {
-            if (data.role === "New role"){
+            if (data.role === "New role") {
                 addRoles();
                 //insert add new role function
             };
-            console.log("Responses from prompts " + data);
+            // console.log("Responses from prompts " + data);
             let nameSplit = data.firstLast.split(" ");
-            console.log(nameSplit);
+            // console.log(nameSplit);
             let query1 = "select id, department_id from roleTable where title = ?";//where title = ${data.role}`
             connection.query(query1, data.role, function (err, res) {
                 if (err) throw err;
-                console.log("The role id is: " + res[0].id + " and the department id is: " + res[0].department_id);
+                // console.log("The role id is: " + res[0].id + " and the department id is: " + res[0].department_id);
                 let query2 = `insert into employeeTable set ?`
                 connection.query(query2,
                     {
@@ -148,7 +148,8 @@ function addEmployees() {
                         role_id: res[0].id
                     }, function (err, res) {
                         if (err) throw err;
-                        console.log(res);
+                        // console.log(res);
+                        runInit();
                     });
             });
         });
@@ -157,14 +158,66 @@ function addEmployees() {
     });
 };
 
+function addRoles() {
+    connection.query("select * from departmentTable", function (err, res) {
+        if (err) throw err;
+        console.log(res);
+        let departments = [];
+        res.forEach(element => {
+            departments.push(element.department);
+        });
+        departments.push("New Department")
+        console.log(departments);
+        inquirer.prompt([
+            {
+                type: 'list',
+                message: 'Does the role fall into any of these departments? If not, please select the "Add Department" option',
+                name: `department`,
+                choices: departments
+            },
+            {
+                type: `input`,
+                message: `Insert the role title here: `,
+                name: `newRole`
+            },
+            {
+                type: `input`,
+                message: `What is the salary for this role? `,
+                name: `salary`
+            }
+        ]).then(function (data) {
+            if (data.department === "New Department") {
+                addDepartments();
+            };
+            console.log(data); //{ department: 'Finance', newRole: 'Derivatives Trader', salary: '200000' }
+            let query = `select id from departmentTable where department = ?`;
+            connection.query(query, data.department, function (err, res) {
+                if (err) throw err;
+                console.log(res);
+                let query2 = `insert into roleTable set?`;
+                connection.query(query2,
+                    {
+                        title: data.newRole,
+                        salary: data.salary,
+                        department_id: res[0].id
+                    }, function (err, res) {
+                        if (err) throw err;
+                        // console.log(res);
+                        runInit();
+                    });
+            })
+        })
+    });
+};
+
 function removeEmployee() {
     connection.query("SELECT * FROM employeeTable", function (err, res) {
         if (err) throw err;
-        console.log(res);
+        // console.log(res);
         const firstAndLast = [];
         res.forEach(element => {
             firstAndLast.push(element.first_name + " " + element.last_name);
-            console.log(firstAndLast);
+            // console.log(firstAndLast);
         });
         inquirer
             .prompt([
@@ -177,7 +230,7 @@ function removeEmployee() {
             ]).then(function (data) {
                 // console.log(data.item.split(" "));
                 var nameSplit = data.item.split(" ");
-                console.log(nameSplit);
+                // console.log(nameSplit);
                 let query = "delete from employeeTable where ? and ?"
                 connection.query(query,
                     [{
