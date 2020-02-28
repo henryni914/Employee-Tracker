@@ -30,7 +30,8 @@ function runInit() {
                 "View employee table",
                 "View roles table",
                 "View departments table",
-                "Remove employee"
+                "Remove employee",
+                "Update role"
             ]
         })
         .then(function (answer) {
@@ -61,6 +62,10 @@ function runInit() {
 
                 case "Remove employee":
                     removeEmployee();
+                    break;
+
+                case "Update role":
+                    updateRole();
                     break;
             }
         });
@@ -148,7 +153,7 @@ function addEmployees() {
                         role_id: res[0].id
                     }, function (err, res) {
                         if (err) throw err;
-                        // console.log(res);
+                        console.log(`Employee: ${data.firstLast} has been added!`);
                         runInit();
                     });
             });
@@ -202,12 +207,29 @@ function addRoles() {
                         department_id: res[0].id
                     }, function (err, res) {
                         if (err) throw err;
-                        // console.log(res);
+                        console.log(`The new role: ${data.newRole} has been added!`);
                         runInit();
                     });
             })
         })
     });
+};
+
+function addDepartments() {
+    inquirer.prompt(
+        {
+            type: 'input',
+            message: 'Please enter the new department',
+            name: 'newDepartment'
+        }
+    ).then(function (data) {
+        console.log(data); //{ newDepartment: 'Accounting' }
+        connection.query("insert into departmentTable set ?", { department: data.newDepartment }, function (err, res) {
+            if (err) throw err;
+            console.log(`The new department: ${data.newDepartment} has been added!`)
+            runInit();
+        });
+    })
 };
 
 function removeEmployee() {
@@ -248,6 +270,44 @@ function removeEmployee() {
             });
     });
 };
+
+function updateRole() {
+    connection.query("select * from employeeTable", function (err, res) {
+        inquirer.prompt(
+            {
+                type: `list`,
+                name: `employee`,
+                message: `Select the employee to update: `,
+                choices: function () {
+                    let employees = []
+                    res.forEach(element => {
+                        employees.push(element.first_name + " " + element.last_name)
+
+                    })
+                    return employees;
+                },
+            }).then(function (data) {
+                console.log(data);
+                connection.query("select * from departmentTable", function (err, res) {
+                    if (err) throw err;
+                    console.log(res);
+                    inquirer.prompt(
+                        {
+                            type: `list`,
+                            name: `department`,
+                            message: `Select the department the role is in: `,
+                            choices: function () {
+                                let departments = []
+                                res.forEach(element => {
+                                    departments.push(element.department)
+                                })
+                                return departments;
+                            },
+                        })
+                });
+            })
+    })
+}
 
 // insert into employeeTable set (sets new employee into table with first and last name)
 // departmentTable.department, departmentTable.id, roleTable.title, roleTable.salary, roleTable.department_id, employeeTable.first_name, employeeTable.last_name, employeeTable.role_id (select all)
