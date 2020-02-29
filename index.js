@@ -123,20 +123,9 @@ function addEmployees() {
             message: "Please choose your employee's role",
             choices: employeeRoles
         }
-            // {
-            //     name: "salary",
-            //     type: "input",
-            //     message: "Please enter your employee's salary"
-            // },
-            // {
-            //     name: "department",
-            //     type: "choice",
-            //     message: "Please choose your employee's department"
-            // }
         ]).then(function (data) {
             if (data.role === "New role") {
                 addRoles();
-                //insert add new role function
             };
             // console.log("Responses from prompts " + data);
             let nameSplit = data.firstLast.split(" ");
